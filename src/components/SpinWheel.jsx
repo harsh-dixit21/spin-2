@@ -20,6 +20,7 @@ export default function SpinWheel({ names, rotation, spinning, onSpin }) {
     ctx.clearRect(0, 0, SIZE, SIZE);
 
     const n = names.length;
+
     if (n === 0) {
       ctx.fillStyle = "#e2e8f0";
       ctx.beginPath();
@@ -31,57 +32,55 @@ export default function SpinWheel({ names, rotation, spinning, onSpin }) {
     const sliceAngle = (2 * Math.PI) / n;
 
     names.forEach((name, i) => {
-      const startAngle = rotation + i * sliceAngle - Math.PI / 2;
+      const startAngle = rotation - Math.PI / 2 + i * sliceAngle;
       const endAngle = startAngle + sliceAngle;
-      const color = COLORS[i % COLORS.length];
 
-      // Slice
+      // Draw slice
       ctx.beginPath();
       ctx.moveTo(CENTER, CENTER);
       ctx.arc(CENTER, CENTER, RADIUS, startAngle, endAngle);
       ctx.closePath();
-      ctx.fillStyle = color;
+      ctx.fillStyle = COLORS[i % COLORS.length];
       ctx.fill();
-      ctx.strokeStyle = "rgba(255,255,255,0.6)";
+      ctx.strokeStyle = "rgba(255,255,255,0.7)";
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Text
+      // Draw label
       ctx.save();
       ctx.translate(CENTER, CENTER);
       ctx.rotate(startAngle + sliceAngle / 2);
       ctx.textAlign = "right";
       ctx.fillStyle = "#ffffff";
-      ctx.font = `bold ${n > 10 ? 13 : 15}px 'Segoe UI', sans-serif`;
-      ctx.shadowColor = "rgba(0,0,0,0.3)";
-      ctx.shadowBlur = 3;
-
-      const maxLen = 14;
-      const label = name.length > maxLen ? name.slice(0, maxLen) + "…" : name;
+      ctx.font = `bold ${n > 10 ? 12 : 15}px 'Segoe UI', sans-serif`;
+      ctx.shadowColor = "rgba(0,0,0,0.4)";
+      ctx.shadowBlur = 4;
+      const label = name.length > 14 ? name.slice(0, 14) + "…" : name;
       ctx.fillText(label, RADIUS - 12, 5);
       ctx.restore();
     });
 
+    // Outer ring
+    ctx.beginPath();
+    ctx.arc(CENTER, CENTER, RADIUS, 0, 2 * Math.PI);
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
     // Center circle
     ctx.beginPath();
     ctx.arc(CENTER, CENTER, 28, 0, 2 * Math.PI);
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#ffffff";
     ctx.fill();
     ctx.strokeStyle = "#cbd5e0";
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    // Outer ring
-    ctx.beginPath();
-    ctx.arc(CENTER, CENTER, RADIUS, 0, 2 * Math.PI);
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 5;
-    ctx.stroke();
   }, [names, rotation]);
 
   return (
     <div className="wheel-container" style={{ width: SIZE, height: SIZE }}>
-      {/* Pointer arrow */}
+      {/* Pointer arrow on the right */}
       <div className="wheel-pointer" />
 
       {/* Wheel canvas */}
@@ -94,7 +93,10 @@ export default function SpinWheel({ names, rotation, spinning, onSpin }) {
       />
 
       {/* Center spin button */}
-      <button className="spin-btn" onClick={!spinning ? onSpin : undefined}>
+      <button
+        className="spin-btn"
+        onClick={!spinning ? onSpin : undefined}
+      >
         {spinning ? "⏳" : "SPIN"}
       </button>
     </div>
